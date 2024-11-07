@@ -66,7 +66,7 @@ public class Exercise3Test extends PetDomainForKata
 
         //TODO
         // Replace by stream the previous pattern
-        Map<String, List<Person>> lastNamesToPeople2 = new HashMap<>();
+        Map<String, List<Person>> lastNamesToPeople2 = people.stream().collect(Collectors.groupingBy(Person::getLastName));
         Assertions.assertEquals(3, lastNamesToPeople2.get("Smith").size());
     }
 
@@ -101,7 +101,13 @@ public class Exercise3Test extends PetDomainForKata
 
         //TODO
         // Replace by stream
-        Map<PetType, Set<Person>> peopleByPetType2 = new HashMap<>();
+        Map<PetType, Set<Person>> peopleByPetType2 = people.stream()
+                         .flatMap(person -> person.getPets().stream().
+                        map(pet -> new Object[]{pet.getType(), person}))
+                        .collect(Collectors.groupingBy(
+                        entry -> (PetType) entry[0],
+                        Collectors.mapping(entry -> (Person) entry[1], Collectors.toSet())
+                ));
 
         Assertions.assertEquals(2, peopleByPetType2.get(PetType.CAT).size());
         Assertions.assertEquals(2, peopleByPetType2.get(PetType.DOG).size());
@@ -117,7 +123,12 @@ public class Exercise3Test extends PetDomainForKata
     {
         //TODO
         // Replace by stream
-        Map<String, Set<Person>> petTypesToPeople = new HashMap<>();
+        Map<String, Set<Person>> petTypesToPeople = people.stream()
+                .flatMap(person -> person.getPetEmojis().keySet().stream().map(petType -> new Object[]{petType, person}))
+                .collect(Collectors.groupingBy(
+                        entry -> (String) entry[0],
+                        Collectors.mapping(entry -> (Person) entry[1], Collectors.toSet())
+                ));
 
         Assertions.assertEquals(2, petTypesToPeople.get("🐱").size());
         Assertions.assertEquals(2, petTypesToPeople.get("🐶").size());
